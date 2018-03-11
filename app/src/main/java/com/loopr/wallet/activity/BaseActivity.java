@@ -1,4 +1,4 @@
-package com.loopr.wallet;
+package com.loopr.wallet.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

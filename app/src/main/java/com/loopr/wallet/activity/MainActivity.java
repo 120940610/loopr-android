@@ -1,6 +1,8 @@
-package com.loopr.wallet;
+package com.loopr.wallet.activity;
 
 import android.os.Bundle;
+
+import com.loopr.wallet.R;
 
 /**
  * Created by snow on 2018/3/6.
