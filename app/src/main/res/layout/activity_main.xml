@@ -9,16 +9,16 @@
         android:id="@+id/fragment_tab_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/fragment_tab" />
+        android:layout_above="@id/fragment_tab_indicator" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_above="@id/fragment_tab"
+        android:layout_above="@id/fragment_tab_indicator"
         android:background="@color/tab_divide" />
 
     <com.loopr.wallet.view.indicator.FragmentTabPageIndicator
-        android:id="@+id/fragment_tab"
+        android:id="@+id/fragment_tab_indicator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
