@@ -11,9 +11,14 @@ import com.loopr.wallet.fragment.TabAssetsFragment;
 import com.loopr.wallet.fragment.TabMarketFragment;
 import com.loopr.wallet.fragment.TabSettingFragment;
 import com.loopr.wallet.fragment.TabTradeFragment;
+import com.loopr.wallet.utils.events.GlobalEvents;
 import com.loopr.wallet.utils.tools.AppUtils;
 import com.loopr.wallet.utils.tools.LogUtils;
 import com.loopr.wallet.view.indicator.FragmentTabPageIndicator;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Created by snow on 2018/3/6.
@@ -29,6 +34,7 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        EventBus.getDefault().register(this);
         registerFragments();
         initViewPager();
     }
@@ -74,5 +80,30 @@ public class MainActivity extends BaseActivity {
                 AppUtils.hideSoftKeyboard(MainActivity.this);
             }
         });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessage(GlobalEvents.SwitchToFragment event) {
+        if (event == null)  return;
+        LogUtils.d("switch", "GlobalEvents.SwitchToFragment " + event.fragmentClass.getSimpleName());
+        initViewPager();
+        getFragmentHandler().switchToFragment(event.fragmentClass, event.addToBackStack,
+                event.enterAnimation, event.exitAnimation, event.popEnterAnimation,
+                event.popExitAnimation, this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessage(GlobalEvents.ShowMainTab event) {
+        if (event == null)  return;
+        LogUtils.e("switch", " GlobalEvents.ShowMainTab");
+        if (indicator != null) {
+            indicator.setCurrentItem(FragmentTabPageIndicator.TAB_ASSETS);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
     }
 }
