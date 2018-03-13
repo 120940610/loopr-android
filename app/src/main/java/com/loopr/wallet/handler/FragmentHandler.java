@@ -156,17 +156,17 @@ public class FragmentHandler {
         Fragment mShowFragment = null;
         if (fragments != null) {
             for (Fragment iter : fragments) {
-                //过滤掉不在mapFragmentInfo中缓存的Fragment
                 if (!mapFragmentInfo.containsKey(iter.getClass().getName())) {
                     continue;
                 }
                 if (iter == null || iter.isHidden())
                     continue;
-//                if (debug)  LogUtils.e("switch", "fragments " + iter.getClass().getSimpleName() + " hidden=" + iter.isHidden());
-                FragmentInfo iterInfo = mapFragmentInfo.get(iter.getClass().getName());
+                //no need when ViewPager is gone
+                /*FragmentInfo iterInfo = mapFragmentInfo.get(iter.getClass().getName());
                 if (iterInfo != null && iterInfo.idContainer != R.id.fragment_tab_container) {
                     mShowFragment = iter;
-                }
+                }*/
+                mShowFragment = iter;
             }
         }
 
@@ -177,29 +177,25 @@ public class FragmentHandler {
             LogUtils.e("switch", "real show fragment hidden: " + fragment.isHidden());
         if (fragment == null) {
             try {
-                if (info.idContainer != R.id.fragment_tab_container) {  // fragment_tab_container由ViewPager接管
+                /*if (info.idContainer != R.id.fragment_tab_container) {  // fragment_tab_container由ViewPager接管
                     fragment = info.fragmentClass.getConstructor().newInstance();
                     if (debug) LogUtils.d("switch", "Not found fragment " + fragmentClass.getName()
                             + ", create new instance (+" + fragment.hashCode() + ")!");
                     fragmentManager.beginTransaction()
                             .add(info.idContainer, fragment, fragmentClass.getName())
                             .commitAllowingStateLoss();
-                }
+                }*/
+                fragment = info.fragmentClass.getConstructor().newInstance();
+                if (debug) LogUtils.d("switch", "Not found fragment " + fragmentClass.getName()
+                        + ", create new instance (+" + fragment.hashCode() + ")!");
+                fragmentManager.beginTransaction()
+                        .add(info.idContainer, fragment, fragmentClass.getName())
+                        .commitAllowingStateLoss();
             } catch (Exception e) {
-                return false;
-            }
-        } else {
-            if (info.idContainer != R.id.fragment_tab_container && fragment != null && !fragment.isHidden()) {
-                // 要show的fragment已经是show的状态就不重复show了 解决杀进程进入首页主进程被卡的时候连续点击搜索框或卡片会show多次
-                if (debug) LogUtils.e("switch", "already show, return false!!!");
                 return false;
             }
         }
 
-        if (mShowFragment == null && info.idContainer == R.id.fragment_tab_container) {
-            if (debug) LogUtils.e("switch", "switchToFragment return");
-            return false;
-        }
 
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
@@ -216,11 +212,9 @@ public class FragmentHandler {
         if (mShowFragment != null) {
             ft.hide(mShowFragment);
         }
-        if (info.idContainer != R.id.fragment_tab_container) {  // fragment_tab_container由ViewPager接管
-            ft.show(fragment);
-            if (addToBackStack) {
-                ft.addToBackStack(fragment.getTag());
-            }
+        ft.show(fragment);
+        if (addToBackStack) {
+            ft.addToBackStack(fragment.getTag());
         }
 
         ft.commitAllowingStateLoss();
@@ -255,7 +249,6 @@ public class FragmentHandler {
             for (Fragment iter : fragments) {
                 if (iter == null || iter.isHidden())
                     continue;
-                //过滤掉不在mapFragmentInfo中缓存的Fragment
                 if (!mapFragmentInfo.containsKey(iter.getClass().getName()))
                     continue;
                 FragmentInfo info = mapFragmentInfo.get(iter.getClass().getName());
